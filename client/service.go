@@ -15,9 +15,9 @@ var clientset *kubernetes.Clientset
 
 func K8sInit() {
 
-	k8sconfig := flag.String("k8sconfig","./config","kubernetes config file path")
+	k8sconfig := flag.String("k8sconfig", "./config", "kubernetes config file path")
 	flag.Parse()
-	config , err := clientcmd.BuildConfigFromFlags("",*k8sconfig)
+	config, err := clientcmd.BuildConfigFromFlags("", *k8sconfig)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return
@@ -28,7 +28,7 @@ func K8sInit() {
 		logs.GetLogger().Error(err)
 		return
 	} else {
-		logs.GetLogger().Info("Connect to k8s successfully")
+		logs.GetLogger().Info("Client initiated successfully!")
 	}
 }
 
@@ -56,17 +56,17 @@ func getK8sPodList() (*apiv1.PodList, error) {
 
 func createK8sDeployment(config vo.DeploymentConfig) (*appsv1.Deployment, error) {
 
-	deployment := &appsv1.Deployment {
-		ObjectMeta: metav1.ObjectMeta {
+	deployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
 			Name: config.Name,
 		},
-		Spec:       appsv1.DeploymentSpec {
+		Spec: appsv1.DeploymentSpec{
 			Replicas: &config.Replicas,
-			Selector: &metav1.LabelSelector {
+			Selector: &metav1.LabelSelector{
 				MatchLabels: config.Labels,
 			},
-			Template: apiv1.PodTemplateSpec {
-				ObjectMeta: metav1.ObjectMeta {
+			Template: apiv1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
 					Labels: config.Labels,
 				},
 				Spec: apiv1.PodSpec{
@@ -118,8 +118,8 @@ func createK8sService(config vo.ServiceConfig) (int32, error) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: config.Name,
 		},
-		Spec:       apiv1.ServiceSpec{
-			Type: apiv1.ServiceTypeNodePort,
+		Spec: apiv1.ServiceSpec{
+			Type:     apiv1.ServiceTypeNodePort,
 			Selector: config.Labels,
 			Ports: []apiv1.ServicePort{
 				{
@@ -127,12 +127,12 @@ func createK8sService(config vo.ServiceConfig) (int32, error) {
 				},
 			},
 		},
-		Status:    	apiv1.ServiceStatus{},
+		Status: apiv1.ServiceStatus{},
 	}
 
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
-	result, err:= servicesClient.Create(service)
+	result, err := servicesClient.Create(service)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return 0, err
